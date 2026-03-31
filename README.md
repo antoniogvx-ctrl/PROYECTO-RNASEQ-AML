@@ -7,9 +7,4 @@ Este proyecto analiza el impacto de la inhibición del complejo **Polycomb 2 (PR
 - **Alineamiento:** HISAT2 sobre genoma de referencia hg38.
 - **Análisis Diferencial:** DESeq2 (R) comparando UNC1999 vs DMSO.
 
-## 📊 Resultados Destacados
-El tratamiento indujo una respuesta asimétrica con una marcada reactivación de genes silenciados epigenéticamente.
-
-![Volcano Plot](results/VolcanoPlot_Final_UNC1999_Symbols.png)
-
 

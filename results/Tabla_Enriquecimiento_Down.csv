@@ -1,0 +1,2 @@
+"query","significant","p_value","term_size","query_size","intersection_size","precision","recall","term_id","source","term_name","effective_domain_size","source_order","parents"
+"query_1",TRUE,0.0264959146487382,4437,126,46,0.365079365079365,0.0103673653369394,"GO:0030154","GO:BP","cell differentiation",21026,6654,

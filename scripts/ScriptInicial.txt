@@ -1,0 +1,61 @@
+#Creamos la máquina virtual y nos conectamos al servidor con SSH cuando termine de generarse. Una vez dentro, instalamos todo el software necesario:
+# Actualizar el sistema e instalar Java y utilidades
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install default-jre wget curl unzip docker.io -y
+sudo apt-get install tmux -y
+sudo apt-get install graphviz -y
+# Instalar Nextflow
+curl -s https://get.nextflow.io | bash
+sudo mv nextflow /usr/local/bin/
+# Dar permisos a Docker para tu usuario
+sudo usermod -aG docker $USER
+#Cerramos el terminal y volvemos a entrar para ver que se ha instalado todo correctamente 
+nextflow -v
+docker run hello-world
+#Creamos las carpetas para el proyecto 
+mkdir -p ~/rnaseq_GSE276955
+cd ~/rnaseq_GSE276955
+mkdir -p data ref results
+#Preparamos la hoja con las muestras 
+nano samplesheet.csv
+#El archivo .csv debe contener los siguientes caracteres separados por , 
+ sample,group,srr
+AML_HSPC_UNC1999_Rep1,UNC1999,SRR30636277
+AML_HSPC_UNC1999_Rep2,UNC1999,SRR30636278
+AML_HSPC_UNC1999_Rep3,UNC1999,SRR30636279
+AML_HSPC_DMSO_Rep1,DMSO,SRR30636280
+AML_HSPC_DMSO_Rep2,DMSO,SRR30636281
+AML_HSPC_DMSO_Rep3,DMSO,SRR30636282
+#Descargamos el genoma de referencia hg38
+cd ~/rnaseq_GSE276955/ref
+wget https://ftp.ensembl.org/pub/release-110/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz
+gunzip Homo_sapiens.GRCh38.110.gtf.gz
+# Volvemos a la carpeta principal
+cd ~/rnaseq_GSE276955
+#Creamos un archivo de configuración para nextflow 
+nano nextflow.config
+docker {
+    enabled = true
+    autoMounts = true
+    runOptions = '-u $(id -u):$(id -g)'
+}
+process {
+    shell = ['/bin/bash', '-euo', 'pipefail']
+}
+#Por último, creamos el archivo main.nf con las funciones para la primera parte del análisis
+nano main.nf 
+#Abrimos una sesión de tmux para lanzar el proceso
+tmux attach -t rnaseq || tmux new -s rnaseq
+nextflow run main.nf #(-resume si el proceso se interrumpe y queremos reanudarlo) 
+#Creamos un reporte de ejecución y flujo visual y descargamos todos los archivos generados de interés 
+nextflow run main.nf -resume -with-report reporte_ejecucion.html -with-dag flujo_visual.png
+#Si queremos descargar solo los resultados y la matriz de conteos: 
+tar -czvf ~/resultados_ligeros_GSE276955.tar.gz \
+    results/counts/ \
+    results/multiqc/ \
+    *.html \
+    *.png \
+    *.csv \
+    *.nf \
+    *.config
+#Y descargamos el archivo resultados_ligeros_GSE276955.tar.gz
